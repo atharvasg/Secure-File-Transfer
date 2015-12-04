@@ -1,0 +1,29 @@
+=======================================================
+Project1 - Client Server using Socket Programming
+	   Group ID - 13
+	   Members - 	1. Atharva Ghaisas
+			2. Dhilip Kumar
+
+=======================================================
+
+
+USAGE:
+
+Server
+==============================
+
+1.run make command to compile both client and server then run exe named SERVER on one machine.
+2. command -
+  ./SERVER
+
+Client
+==============================
+1.run make command to compile both client and server then run exe named SERVER on one machine.
+2. command -
+   1.	./CLIENT <IP_address_of_machine_running_server_program>	(use this if client and server both are running on the different machines in the same network).
+
+   2.	./CLIENT   (Use this if client and server are both running on the same machine).			
+
+3.send exit in message to client to stop the communication.
+ e.g. To Client : exit
+
