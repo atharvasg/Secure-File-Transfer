@@ -44,7 +44,7 @@ int main(int argc,char *argv[])
 		{
 		 	servaddr.sin_addr.s_addr=inet_addr("127.0.0.1");
 		}
-	socketdescriptor=socket(AF_INET,SOCK_STREAM,0);									//step 1- Creating a socket and returning it's ID i.e. Socketdescriptor
+	socketdescriptor=socket(AF_INET,SOCK_DGRAM,0);									//step 1- Creating a socket and returning it's ID i.e. Socketdescriptor
 	if(socketdescriptor==-1)
 	 {
 		printf("socket creation failed...\n");
