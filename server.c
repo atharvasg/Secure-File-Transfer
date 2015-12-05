@@ -28,7 +28,7 @@ void communicate(int socketdescriptor)
 	 }
 }
 
-int main()
+int main(int argc,char *argv[])
 {
 	int socketdescriptor,conndescriptor,len;
 	struct sockaddr_in servaddr,cli;
@@ -44,7 +44,14 @@ int main()
 	memset(&servaddr,0,sizeof(servaddr));								// filling data in structure sockaddr_in.
 	servaddr.sin_family=AF_INET;
 	servaddr.sin_addr.s_addr=htonl(INADDR_ANY);							// host to network byte conversion for maintaining uniformity inIP address.
-	servaddr.sin_port=htons(PORT);									// host to network byte conversion for maintaining uniformity in port no.
+	if(argc>1)
+	{
+		servaddr.sin_port=htons(argv[1]);		//for taking port from user	
+	}
+	else
+	{
+		servaddr.sin_port=htons(PORT);									// host to network byte conversion for maintaining uniformity in port no.
+	}
 	
 	if((bind(socketdescriptor,(struct sockaddr *)&servaddr, sizeof(servaddr)))!=0)					//Step 2- binding socket to the IP and port provided. 
 	 {

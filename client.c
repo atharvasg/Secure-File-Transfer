@@ -44,7 +44,7 @@ int main(int argc,char *argv[])
 		{
 		 	servaddr.sin_addr.s_addr=inet_addr("127.0.0.1");
 		}
-	socketdescriptor=socket(AF_INET,SOCK_DGRAM,0);									//step 1- Creating a socket and returning it's ID i.e. Socketdescriptor
+	socketdescriptor=socket(AF_INET,SOCK_STREAM,0);									//step 1- Creating a socket and returning it's ID i.e. Socketdescriptor
 	if(socketdescriptor==-1)
 	 {
 		printf("socket creation failed...\n");
@@ -53,8 +53,14 @@ int main(int argc,char *argv[])
 	else
 		printf("Socket successfully created..\n");
 	servaddr.sin_family=AF_INET;
-	servaddr.sin_port=htons(PORT);
-	
+	if(argc>2)
+	{
+		servaddr.sin_port=htons(argv[2]);		//for taking port from user	
+	}
+	else
+	{
+		servaddr.sin_port=htons(PORT);
+	}
 	if(connect(socketdescriptor,(struct sockaddr *)&servaddr,sizeof(servaddr))!=0)					//step 2- Connect to server on the IP and port provided.
 	 {
 		printf("connection with the server failed...:%d\n",connect(socketdescriptor,(struct sockaddr *)&servaddr,sizeof(servaddr)));
