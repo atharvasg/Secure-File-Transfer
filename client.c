@@ -8,7 +8,7 @@
 
 #define MAX 256
 #define PORT 43455
-void communicate(int socketdescriptor)
+void communicate(int socketdescriptor,struct sockaddr_in server)
 {
 	char buffer[MAX];
 	int n;
@@ -18,9 +18,12 @@ void communicate(int socketdescriptor)
 		printf("To Server: ");
 		n=0;
 		while((buffer[n++]=getchar())!='\n');
-		write(socketdescriptor,buffer,sizeof(buffer));								//step 3 - sending the data to server.
+		//write(socketdescriptor,buffer,sizeof(buffer));								//step 3 - sending the data to server.
+		n = sendto(socketdescriptor,buffer,strlen(buffer),0,(struct sockaddr *)&server,sizeof(server));		
 		memset(buffer,0,sizeof(buffer));
-		read(socketdescriptor,buffer,sizeof(buffer));								//step 4 - reading the data sent by server
+		//read(socketdescriptor,buffer,sizeof(buffer));								//step 4 - reading the data sent by server
+		n = recvfrom(socketdescriptor,buffer,strlen(buffer),0,(struct sockaddr *)&server,sizeof(server));
+		
 		printf("\t\t\tFrom Server : %s",buffer);
 		if((strncmp(buffer,"exit",4))==0)
 		 {
@@ -44,7 +47,7 @@ int main(int argc,char *argv[])
 		{
 		 	servaddr.sin_addr.s_addr=inet_addr("127.0.0.1");
 		}
-	socketdescriptor=socket(AF_INET,SOCK_STREAM,0);									//step 1- Creating a socket and returning it's ID i.e. Socketdescriptor
+	socketdescriptor=socket(AF_INET,SOCK_DGRAM,0);									//step 1- Creating a socket and returning it's ID i.e. Socketdescriptor
 	if(socketdescriptor==-1)
 	 {
 		printf("socket creation failed...\n");
@@ -55,19 +58,20 @@ int main(int argc,char *argv[])
 	servaddr.sin_family=AF_INET;
 	if(argc>2)
 	{
-		servaddr.sin_port=htons(argv[2]);		//for taking port from user	
+		printf("AGRS:%d\n",atoi(argv[2]));
+		servaddr.sin_port=htons(atoi(argv[2]));		//for taking port from user	
 	}
 	else
 	{
 		servaddr.sin_port=htons(PORT);
 	}
-	if(connect(socketdescriptor,(struct sockaddr *)&servaddr,sizeof(servaddr))!=0)					//step 2- Connect to server on the IP and port provided.
+	/*if(connect(socketdescriptor,(struct sockaddr *)&servaddr,sizeof(servaddr))!=0)					//step 2- Connect to server on the IP and port provided.
 	 {
 		printf("connection with the server failed...:%d\n",connect(socketdescriptor,(struct sockaddr *)&servaddr,sizeof(servaddr)));
 		exit(0);
 	 }
 	else
-		printf("connected to the server..\n");
-	communicate(socketdescriptor);											//function for sending and receiving data from server.
+		printf("connected to the server..\n");*/
+	communicate(socketdescriptor,servaddr);											//function for sending and receiving data from server.
 	close(socketdescriptor);											//closing the socket after the communcation completes.
 } 
