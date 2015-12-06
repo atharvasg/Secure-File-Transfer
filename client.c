@@ -35,7 +35,7 @@ void communicate(int socketdescriptor,struct sockaddr_in server,int len)
 
 int main(int argc,char *argv[])
 {
-	int socketdescriptor,len;
+	int socketdescriptor,length;
 	struct sockaddr_in servaddr;
 	memset(&servaddr,0,sizeof(servaddr));	
 	if(argc>1)
@@ -65,7 +65,7 @@ int main(int argc,char *argv[])
 	{
 		servaddr.sin_port=htons(PORT);
 	}
-	len=sizeof(struct sockaddr_in);
-	communicate(socketdescriptor,servaddr,len);											//function for sending and receiving data from server.
+	length=sizeof(struct sockaddr_in);
+	communicate(socketdescriptor,servaddr,length);											//function for sending and receiving data from server.
 	close(socketdescriptor);											//closing the socket after the communcation completes.
 } 
