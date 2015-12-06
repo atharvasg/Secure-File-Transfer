@@ -5,7 +5,6 @@
 #include<netdb.h>
 #include<string.h>
 #include<stdlib.h>
-
 #define MAX 256
 #define PORT 43455
 void communicate(int socketdescriptor,struct sockaddr_in server,int len)
