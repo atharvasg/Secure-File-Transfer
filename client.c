@@ -8,22 +8,22 @@
 
 #define MAX 256
 #define PORT 43455
-void communicate(int socketdescriptor,struct sockaddr_in server)
+void communicate(int socketdescriptor,struct sockaddr_in server,int len)
 {
 	char buffer[MAX];
-	int n;
+	int n=0;
+	int a=0;
 	for(;;)
 	 {
 		memset(buffer,0,sizeof(buffer));		
 		printf("To Server: ");
 		n=0;
 		while((buffer[n++]=getchar())!='\n');
-		//write(socketdescriptor,buffer,sizeof(buffer));								//step 3 - sending the data to server.
-		n = sendto(socketdescriptor,buffer,strlen(buffer),0,(struct sockaddr *)&server,sizeof(server));		
-		memset(buffer,0,sizeof(buffer));
-		//read(socketdescriptor,buffer,sizeof(buffer));								//step 4 - reading the data sent by server
-		n = recvfrom(socketdescriptor,buffer,strlen(buffer),0,(struct sockaddr *)&server,sizeof(server));
+		a = sendto(socketdescriptor,buffer,sizeof(buffer),0,(struct sockaddr *)&server,len);			//step 3 - sending the data to server.
 		
+		memset(buffer,0,sizeof(buffer));
+		a = recvfrom(socketdescriptor,buffer,sizeof(buffer),0,(struct sockaddr *)&server,len);			//step 4 - reading the data sent by server
+		printf("Received Message:%s/n",buffer);
 		printf("\t\t\tFrom Server : %s",buffer);
 		if((strncmp(buffer,"exit",4))==0)
 		 {
@@ -35,8 +35,7 @@ void communicate(int socketdescriptor,struct sockaddr_in server)
 
 int main(int argc,char *argv[])
 {
-	int socketdescriptor,connectiondescriptor;
-	//unsigned int ipaddress;
+	int socketdescriptor,len;
 	struct sockaddr_in servaddr;
 	memset(&servaddr,0,sizeof(servaddr));	
 	if(argc>1)
@@ -47,7 +46,8 @@ int main(int argc,char *argv[])
 		{
 		 	servaddr.sin_addr.s_addr=inet_addr("127.0.0.1");
 		}
-	socketdescriptor=socket(AF_INET,SOCK_DGRAM,0);									//step 1- Creating a socket and returning it's ID i.e. Socketdescriptor
+	socketdescriptor=socket(AF_INET,SOCK_DGRAM,0);							//step 1- Creating a socket and returning it's ID i.e. Socketdescriptor
+	printf("Descriptor:%d\n",socketdescriptor);
 	if(socketdescriptor==-1)
 	 {
 		printf("socket creation failed...\n");
@@ -58,20 +58,14 @@ int main(int argc,char *argv[])
 	servaddr.sin_family=AF_INET;
 	if(argc>2)
 	{
-		printf("AGRS:%d\n",atoi(argv[2]));
+		printf("ARGS:%d\n",atoi(argv[2]));
 		servaddr.sin_port=htons(atoi(argv[2]));		//for taking port from user	
 	}
 	else
 	{
 		servaddr.sin_port=htons(PORT);
 	}
-	/*if(connect(socketdescriptor,(struct sockaddr *)&servaddr,sizeof(servaddr))!=0)					//step 2- Connect to server on the IP and port provided.
-	 {
-		printf("connection with the server failed...:%d\n",connect(socketdescriptor,(struct sockaddr *)&servaddr,sizeof(servaddr)));
-		exit(0);
-	 }
-	else
-		printf("connected to the server..\n");*/
-	communicate(socketdescriptor,servaddr);											//function for sending and receiving data from server.
+	len=sizeof(struct sockaddr_in);
+	communicate(socketdescriptor,servaddr,len);											//function for sending and receiving data from server.
 	close(socketdescriptor);											//closing the socket after the communcation completes.
 } 

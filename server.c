@@ -10,19 +10,22 @@
 void communicate(int socketdescriptor,struct sockaddr_in cli,int len)
 {
 	char buffer[MAX];
-	int n;
+	int n=0;
+	int a=0;
 	for(;;)																//server will be running continuously
 	 {
 		n=0;
 		memset(buffer,0,sizeof(buffer));
-		//read(socketdescriptor,buffer,sizeof(buffer));									//step 5 - Reading the data sent by client.	
-		n = recvfrom(socketdescriptor,buffer,strlen(buffer),0,(struct sockaddr *)&cli,&len);
+		a = recvfrom(socketdescriptor,buffer,sizeof(buffer),0,(struct sockaddr *)&cli,&len);				//step 5 - Reading the data sent by client.	
+		if(a<0)
+			printf("Receive Failed!!");	
 		printf("\n");
 		printf("\t\t\tFrom client: %s\nTo client : ",buffer);
 		memset(buffer,0,MAX);
 		while((buffer[n++]=getchar())!='\n');
-		n = sendto(socketdescriptor,buffer,strlen(buffer),0,(struct sockaddr *)&cli,&len);		
-		//write(socketdescriptor,buffer,sizeof(buffer));								//step 6 - Sending the message to client.
+		a = sendto(socketdescriptor,buffer,sizeof(buffer),0,(struct sockaddr *)&cli,len);				//step 6 - Sending the message to client.		
+		if(a<0)		
+			printf("Sending Failed!!\n");								
 		if(strncmp("exit",buffer,4)==0)
 		 {
 			printf("Server will Exit...end of communication\n");
@@ -33,10 +36,10 @@ void communicate(int socketdescriptor,struct sockaddr_in cli,int len)
 
 int main(int argc,char *argv[])
 {
-	int socketdescriptor,conndescriptor,len;
+	int socketdescriptor,len;
 	struct sockaddr_in servaddr,cli;
 
-	socketdescriptor=socket(AF_INET,SOCK_DGRAM,0);									//step 1- Creating a socket and returning it's ID i.e. Socketdescriptor
+	socketdescriptor=socket(AF_INET,SOCK_DGRAM,0);					//step 1- Creating a socket and returning it's ID i.e. Socketdescriptor
 	if(socketdescriptor==-1)
 	 {
 		printf("socket creation failed...\n");
@@ -49,10 +52,11 @@ int main(int argc,char *argv[])
 	servaddr.sin_addr.s_addr=htonl(INADDR_ANY);							// host to network byte conversion for maintaining uniformity inIP address.
 	if(argc>1)
 	{
-		servaddr.sin_port=htons(atoi(argv[2]));		//for taking port from user	
+		servaddr.sin_port=htons(atoi(argv[1]));		//for taking port from user	
 	}
 	else
 	{
+		printf("No port provided...hence default port 43454 will be used\n");
 		servaddr.sin_port=htons(PORT);									// host to network byte conversion for maintaining uniformity in port no.
 	}
 	if((bind(socketdescriptor,(struct sockaddr *)&servaddr, sizeof(servaddr)))!=0)					//Step 2- binding socket to the IP and port provided. 
@@ -61,24 +65,8 @@ int main(int argc,char *argv[])
 		exit(0);
 	 }
 	else
-		printf("Socket successfully binded..\n");
-	
-	/*if((listen(socketdescriptor,5))!=0)										//step 3- for making server listen on the provided Port and IP address.
-	 {
-		printf("Listen failed...\n");
-		exit(0);
-	 }
-	else
-		printf("Server listening..\n");*/
-	//len=sizeof(cli);
-	//conndescriptor=accept(socketdescriptor,(struct sockaddr *)&cli,&len);						//step 4- Accept system call for accepting the connect request from client.
-	/*if(conndescriptor<0)
-	 {
-		printf("server acccept failed...\n");
-		exit(0);
-	 }
-	else
-		printf("server acccept the client...\n");*/
-	communicate(socketdescriptor,cli,len);									//function for sending and receiving data from client
+		printf("Socket successfully binded..waiting for clients to connect..\n");
+	len=sizeof(struct sockaddr_in);
+        communicate(socketdescriptor,cli,len);									//function for sending and receiving data from client
 	close(socketdescriptor);									//closing the socket after the communcation completes.
 }
