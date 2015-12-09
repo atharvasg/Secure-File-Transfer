@@ -6,10 +6,22 @@
 #include<string.h>
 #include<stdlib.h>
 #define WINDOWSIZE 3
-#define NAMESIZE 100
-#define MAX 1024
+#define NAMESIZE 60
+#define SEQNO 1
+#define DATA  196
+#define MAX 200
 #define PORT 43455
+//window will be array of pointers  for struct  packet.
+struct packet
+{
+	int seqno;
+	char data[DATA];
+// 	char data[MAX-sizeof(int)];
+};
+/*struct 
 
+*/
+ 
 unsigned long int getFileSize(FILE *fp)
 {
 	unsigned long int filesize=0; 
@@ -31,29 +43,74 @@ int getnoofPackets(unsigned long int filesize)
 		return noofpackets+1;
 	}
 }
+struct packet createPacket(int type,char *data)
+{
+	struct packet NewPacket;	
+	char * packetdata=(char *)malloc(sizeof(DATA));
+	strcpy(packetdata,data);
+  	switch(type)
+  	{
+		case 1:
+			NewPacket.seqno=0;
+			strcpy(NewPacket.data,packetdata);
+			break;
+		case 2:
+			break;
+ 	}
+	printf("Packet Data is:%s\n",NewPacket.data);
+  return NewPacket;
+}
+char * readData(FILE *fp)
+{
+  	int i=0;
+  	char c;
+	char *buffer;
+	buffer=(char *)malloc(DATA);
+	while(c=fgetc(fp)!=EOF)	 
+   	{	
+		buffer[i++]=c;
+		if(i==DATA)
+		{
+			break;	
+		}
+   	}
+	buffer[i]='\0';
+ printf("Printing data size from readData():- %ld\n",sizeof(buffer));
+ return buffer;
+}
 
 void communicate(int socketdescriptor,struct sockaddr_in server,int len)
 {
 	unsigned long int filesize=0; 	
 	int noofpackets,n,a;
 	static int frameNo=0;
-	char buffer[MAX];
-        char filename[NAMESIZE];
-	File *fp;
+	struct packet init;
+	char filename[NAMESIZE];
+	FILE *fp;
 	printf("Enter the file name to be sent:");
 	scanf("%s",filename);
         noofpackets=n=a=0;
-			
-//	a=sendto(socketdescriptor,filename,sizeof(filename),0,(struct sockaddr *)&server,len);
+	init=createPacket(1,filename);
+	a=sendto(socketdescriptor,(const void *)&init,sizeof(struct packet),0,(struct sockaddr *)&server,len);
 //	if(a>0)
 //	{
-        	fp=fopen(filename,"r");
+        	/*fp=fopen(filename,"r");
 		if(fp>0)
+		{			
 			filesize=getFileSize(fp);
 			noofpackets=getnoofPackets(filesize);
+			while(fgetc(fp)!=EOF)
+			{
+				
+			}
+		}
 		else
-			printf("Error while reding the file!!\n");
+			printf("Error while reading the file!!\n");*/
 		for(;;)
+		{
+		  		
+		}
+/*		for(;;)
 		{
  			frameno=fread(buffer,sizeof(buffer),1,fp);
 			while(frameno>0 && i<WINDOWSIZE)
@@ -85,7 +142,7 @@ void communicate(int socketdescriptor,struct sockaddr_in server,int len)
 				printf("Client will Exit...End of communication\n");
 				break;
 			 }
-		 }
+		 }*/
 //	}
 //	else
 //	{

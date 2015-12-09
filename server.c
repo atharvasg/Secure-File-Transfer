@@ -5,14 +5,28 @@
 #include<netdb.h>
 #include<stdlib.h>
 #include<string.h>
-#define MAX 256
+#define MAX 500
+#define DATA 468
 #define PORT 43455
+struct packet
+{
+	int seqno;
+	char data[DATA];
+};
+
 void communicate(int socketdescriptor,struct sockaddr_in cli,int len)
 {
 	char buffer[MAX];
 	int n=0;
 	int a=0;
-	for(;;)																//server will be running continuously
+	struct packet NewPacket;
+	a = recvfrom(socketdescriptor,(void *)&NewPacket,sizeof(buffer),0,(struct sockaddr *)&cli,&len);	
+	if(a<0)
+		printf("Problem in receiving!!!\n");
+	printf("Contents are:-\n");
+	printf("1.Seq No:-%d\n",NewPacket.seqno);
+	printf("2.data:-%s\n",NewPacket.data);
+	/*for(;;)																//server will be running continuously
 	 {
 		n=0;
 		memset(buffer,0,sizeof(buffer));
@@ -31,7 +45,7 @@ void communicate(int socketdescriptor,struct sockaddr_in cli,int len)
 			printf("Server will Exit...end of communication\n");
 			break;
 		}
-	 }
+	 }*/
 }
 
 int main(int argc,char *argv[])
