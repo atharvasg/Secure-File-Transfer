@@ -5,8 +5,8 @@
 #include<netdb.h>
 #include<stdlib.h>
 #include<string.h>
-#define MAX 500
-#define DATA 468
+#define MAX 200
+#define DATA 196
 #define PORT 43455
 struct packet
 {
@@ -14,18 +14,96 @@ struct packet
 	char data[DATA];
 };
 
+
 void communicate(int socketdescriptor,struct sockaddr_in cli,int len)
 {
 	char buffer[MAX];
-	int n=0;
-	int a=0;
+	static int framecounter;	
+	FILE *fp;
+	char c;
+	int n,a,i,flag;
+	n=a=i=flag=0;
+	framecounter=1;	
 	struct packet NewPacket;
-	a = recvfrom(socketdescriptor,(void *)&NewPacket,sizeof(buffer),0,(struct sockaddr *)&cli,&len);	
+	a = recvfrom(socketdescriptor,(void *)&NewPacket,sizeof(buffer),0,(struct sockaddr *)&cli,&len);
+	char filename[80];
+	
+	printf("a is:%d\n",a);	
 	if(a<0)
 		printf("Problem in receiving!!!\n");
-	printf("Contents are:-\n");
-	printf("1.Seq No:-%d\n",NewPacket.seqno);
-	printf("2.data:-%s\n",NewPacket.data);
+	else
+ 	{
+			while(NewPacket.seqno!=-1)
+			{	
+		
+				switch(NewPacket.seqno)
+				{
+				  	case 0:
+							
+							strcpy(filename,NewPacket.data);				
+							fp=fopen(NewPacket.data,"w");
+							printf("Contents are:-\n");
+							printf("1.Seq No:-%d\n",NewPacket.seqno);
+							printf("2.data:-%s\n",NewPacket.data);
+							fclose(fp);
+		
+						break;
+					case 1: 
+							i=0;
+							fp=fopen(filename,"a+");
+							printf("Inside Case 1:\n");
+							/*while(i<DATA)
+							{
+							//	printf("-----------------------\n");
+							//	printf("%c",NewPacket.data[i]);	
+							//	printf("-----------------------\n");
+								fputc(NewPacket.data[i++],fp);
+								//i++;
+								if(i>900)
+								{
+									printf("Infinite Loop...Server will exit now");
+									break;
+								}
+								if(i==DATA)
+								{
+									printf("i is:%d\n",i);								
+									break;
+								}
+							}*/
+							fwrite(NewPacket.data,1,DATA-1,fp);	
+							fclose(fp);
+							framecounter++;
+						break;
+					default:
+						printf("Inside Default!!\n");	
+						flag=1;
+						break;
+				}
+				if(flag==1)
+				{
+					break;
+				}	
+				a = recvfrom(socketdescriptor,(void *)&NewPacket,sizeof(struct packet),0,(struct sockaddr *)&cli,&len);
+				if(a<0)
+				{
+					printf("Error while Receiving!!\n");
+				}
+				else
+				{
+					printf("Frame %d received successfully\n",framecounter);
+				}
+				printf("Received Data is:%s\n",NewPacket.data);
+				printf("Contents are:-\n");
+				printf("1.Seq No:-%d\n",NewPacket.seqno);
+				printf("2.data:-%s\n",NewPacket.data);	
+			 }
+		
+	
+	}
+	//fclose(fp);		
+        		
+
+			
 	/*for(;;)																//server will be running continuously
 	 {
 		n=0;
